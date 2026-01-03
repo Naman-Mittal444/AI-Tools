@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Naman Mittal - AI-Powered Tools & Utilities">
+    <title>My AI-Powered Tools | Naman Mittal</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="works-header">
+        <a href="index.html" class="back-button">← Home</a>
+        <h1 class="works-title">My AI-Powered Tools</h1>
+    </header>
+
+    <!-- Tools Grid -->
+    <div class="tools-grid">
+        <!-- Calculator -->
+        <div class="tool-card" data-tool="calculator">
+            <div class="tool-icon">🔢</div>
+            <h3 class="tool-title">Calculator</h3>
+            <button class="launch-button" onclick="openTool('calculator')">Launch Tool</button>
+        </div>
+
+        <!-- Internet Speed Test -->
+        <div class="tool-card" data-tool="speedtest">
+            <div class="tool-icon">⚡</div>
+            <h3 class="tool-title">Internet Speed Test</h3>
+            <button class="launch-button" onclick="openTool('speedtest')">Launch Tool</button>
+        </div>
+
+        <!-- Tic Tac Toe -->
+        <div class="tool-card" data-tool="tictactoe">
+            <div class="tool-icon">⭕</div>
+            <h3 class="tool-title">Tic Tac Toe</h3>
+            <button class="launch-button" onclick="openTool('tictactoe')">Launch Tool</button>
+        </div>
+
+        <!-- Water Sort Puzzle -->
+        <div class="tool-card" data-tool="watersort">
+            <div class="tool-icon">🧪</div>
+            <h3 class="tool-title">Water Sort Puzzle</h3>
+            <button class="launch-button" onclick="openTool('watersort')">Launch Tool</button>
+        </div>
+
+        <!-- Pomodoro Timer -->
+        <div class="tool-card" data-tool="pomodoro">
+            <div class="tool-icon">🍅</div>
+            <h3 class="tool-title">Pomodoro Timer</h3>
+            <button class="launch-button" onclick="openTool('pomodoro')">Launch Tool</button>
+        </div>
+
+        <!-- Password Generator -->
+        <div class="tool-card" data-tool="passwordgen">
+            <div class="tool-icon">🔐</div>
+            <h3 class="tool-title">Password Generator</h3>
+            <button class="launch-button" onclick="openTool('passwordgen')">Launch Tool</button>
+        </div>
+
+        <!-- Snake Game -->
+        <div class="tool-card" data-tool="snake">
+            <div class="tool-icon">🐍</div>
+            <h3 class="tool-title">Classic Snake</h3>
+            <button class="launch-button" onclick="openTool('snake')">Launch Tool</button>
+        </div>
+
+        <!-- Memory Card Game -->
+        <div class="tool-card" data-tool="memory">
+            <div class="tool-icon">🧠</div>
+            <h3 class="tool-title">Memory Card Game</h3>
+            <button class="launch-button" onclick="openTool('memory')">Launch Tool</button>
+        </div>
+
+        <!-- Infinite Craft -->
+        <div class="tool-card" data-tool="infinitecraft">
+            <div class="tool-icon">🔬</div>
+            <h3 class="tool-title">Infinite Craft</h3>
+            <button class="launch-button" onclick="openTool('infinitecraft')">Launch Tool</button>
+        </div>
+
+        <!-- Simulation Clicker -->
+        <div class="tool-card" data-tool="clicker">
+            <div class="tool-icon">🖱️</div>
+            <h3 class="tool-title">Simulation Clicker</h3>
+            <button class="launch-button" onclick="openTool('clicker')">Launch Tool</button>
+        </div>
+
+        <!-- Space Elevator -->
+        <div class="tool-card" data-tool="spaceelevator">
+            <div class="tool-icon">🚀</div>
+            <h3 class="tool-title">Space Elevator</h3>
+            <button class="launch-button" onclick="openTool('spaceelevator')">Launch Tool</button>
+        </div>
+
+        <!-- Asteroid Launcher -->
+        <div class="tool-card" data-tool="asteroid">
+            <div class="tool-icon">☄️</div>
+            <h3 class="tool-title">Asteroid Launcher</h3>
+            <button class="launch-button" onclick="openTool('asteroid')">Launch Tool</button>
+        </div>
+
+        <!-- Draw Perfect Circle -->
+        <div class="tool-card" data-tool="circle">
+            <div class="tool-icon">⭕</div>
+            <h3 class="tool-title">Draw Perfect Circle</h3>
+            <button class="launch-button" onclick="openTool('circle')">Launch Tool</button>
+        </div>
+
+        <!-- Spend Billionaire Money -->
+        <div class="tool-card" data-tool="billionaire">
+            <div class="tool-icon">💰</div>
+            <h3 class="tool-title">Spend Billionaire Money</h3>
+            <button class="launch-button" onclick="openTool('billionaire')">Launch Tool</button>
+        </div>
+
+        <!-- Flappy Bird -->
+        <div class="tool-card" data-tool="flappy">
+            <div class="tool-icon">🐦</div>
+            <h3 class="tool-title">Flappy Bird</h3>
+            <button class="launch-button" onclick="openTool('flappy')">Launch Tool</button>
+        </div>
+
+        <!-- Jump Game -->
+        <div class="tool-card" data-tool="jump">
+            <div class="tool-icon">🦘</div>
+            <h3 class="tool-title">Jump Game</h3>
+            <button class="launch-button" onclick="openTool('jump')">Launch Tool</button>
+        </div>
+
+        <!-- Ronaldo Birds -->
+        <div class="tool-card" data-tool="ronaldobirds">
+            <div class="tool-icon"><img src="flappy/assets/sprites/ronaldo_face.png"></div>
+            <h3 class="tool-title">Ronaldo Birds</h3>
+            <button class="launch-button" onclick="openTool('ronaldobirds')">Launch Tool</button>
+        </div>
+
+        <!-- Battleship -->
+        <div class="tool-card" data-tool="battleship">
+            <div class="tool-icon">🚢</div>
+            <h3 class="tool-title">Battleship</h3>
+            <button class="launch-button" onclick="openTool('battleship')">Launch Tool</button>
+        </div>
+
+        <!-- 2048 -->
+        <div class="tool-card" data-tool="game2048">
+            <div class="tool-icon">🔢</div>
+            <h3 class="tool-title">2048</h3>
+            <button class="launch-button" onclick="openTool('game2048')">Launch Tool</button>
+        </div>
+
+        <!-- Hangman -->
+        <div class="tool-card" data-tool="hangman">
+            <div class="tool-icon">🎯</div>
+            <h3 class="tool-title">Hangman</h3>
+            <button class="launch-button" onclick="openTool('hangman')">Launch Tool</button>
+        </div>
+
+        <!-- Tetris -->
+        <div class="tool-card" data-tool="tetris">
+            <div class="tool-icon">🧩</div>
+            <h3 class="tool-title">Tetris</h3>
+            <button class="launch-button" onclick="openTool('tetris')">Launch Tool</button>
+        </div>
+
+        <!-- Traffic Rider (Python) -->
+        <div class="tool-card" data-tool="trafficrider">
+            <div class="tool-icon">🚗</div>
+            <h3 class="tool-title">Traffic Rider (Python)</h3>
+            <button class="launch-button" onclick="openTool('trafficrider')">Launch Tool</button>
+        </div>
+
+        <!-- Global Clock -->
+        <div class="tool-card" data-tool="worldclock">
+            <div class="tool-icon">🌍</div>
+            <h3 class="tool-title">Global Clock</h3>
+            <button class="launch-button" onclick="openTool('worldclock')">Launch Tool</button>
+        </div>
+    </div>
+
+    <!-- Modal Overlay -->
+    <div id="modalOverlay" class="modal-overlay">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeTool()">×</button>
+            <div id="modalBody"></div>
+        </div>
+    </div>
+   
+   <!-- Spy Game -->
+    <!-- Spy Game -->
+    <div class="tool-card" data-tool="spygame">
+        <div class="tool-icon">🕵️</div>
+        <h3 class="tool-title">Spy Game</h3>
+        <a href="spy.html" class="launch-button-link">
+            <button class="launch-button">
+                Launch Tool
+            </button>
+        </a>
+    </div>
+
+
+
+    <script src="script.js"></script>
+</body>
+</html>
+

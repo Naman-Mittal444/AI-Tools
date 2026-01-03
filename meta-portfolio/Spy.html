@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Spy Game</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body {
+  margin: 0;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #12002f, #2b0066);
+  font-family: Arial, sans-serif;
+  color: white;
+}
+
+.box {
+  background: #0f0f2a;
+  padding: 22px;
+  border-radius: 16px;
+  width: 90%;
+  max-width: 360px;
+  text-align: center;
+  box-shadow: 0 0 25px #6c63ff;
+}
+
+input, button {
+  width: 100%;
+  padding: 12px;
+  margin-top: 12px;
+  font-size: 16px;
+  border-radius: 10px;
+  border: none;
+}
+
+button {
+  background: linear-gradient(135deg, #6c63ff, #00e5ff);
+  color: white;
+  cursor: pointer;
+}
+
+.word {
+  font-size: 28px;
+  margin: 20px 0;
+  color: #ff4cff;
+}
+</style>
+</head>
+
+<body>
+
+<div class="box" id="app">
+  <h2>🕵️ Spy Game</h2>
+  <p>Players (3–10)</p>
+  <input id="players" type="number" min="3" max="10">
+  <button onclick="startGame()">Start Game</button>
+</div>
+
+<script>
+/* ✅ SAME-CATEGORY PAIRS ONLY */
+
+const pairs = [
+
+  // Actions
+  ["Run", "Walk"],
+  ["Jump", "Hop"],
+  ["Sit", "Stand"],
+  ["Sleep", "Nap"],
+  ["Eat", "Drink"],
+  ["Cook", "Bake"],
+  ["Read", "Write"],
+  ["Sing", "Hum"],
+  ["Talk", "Whisper"],
+  ["Laugh", "Smile"],
+
+  // Food
+  ["Tea", "Milk"],
+  ["Coffee", "Green Tea"],
+  ["Pizza", "Burger"],
+  ["Pasta", "Noodles"],
+  ["Rice", "Bread"],
+  ["Ice Cream", "Kulfi"],
+  ["Cake", "Pastry"],
+  ["Chocolate", "Candy"],
+  ["Apple", "Banana"],
+  ["Mango", "Orange"],
+
+  // Places
+  ["Temple", "Church"],
+  ["Mosque", "Gurudwara"],
+  ["School", "College"],
+  ["Hospital", "Clinic"],
+  ["Airport", "Railway Station"],
+  ["Beach", "Desert"],
+  ["Hill", "Valley"],
+  ["Forest", "Jungle"],
+  ["River", "Lake"],
+  ["Park", "Garden"],
+
+  // Transport
+  ["Car", "Bike"],
+  ["Bus", "Truck"],
+  ["Train", "Metro"],
+  ["Plane", "Helicopter"],
+  ["Boat", "Ship"],
+  ["Scooter", "Cycle"],
+  ["Auto", "Taxi"],
+  ["Van", "Jeep"],
+  ["Rocket", "Satellite"],
+  ["Submarine", "Ship"],
+
+  // Animals
+  ["Cat", "Dog"],
+  ["Lion", "Tiger"],
+  ["Cow", "Buffalo"],
+  ["Horse", "Donkey"],
+  ["Elephant", "Rhino"],
+  ["Monkey", "Gorilla"],
+  ["Snake", "Lizard"],
+  ["Fish", "Shark"],
+  ["Eagle", "Vulture"],
+  ["Parrot", "Pigeon"],
+
+  // Objects
+  ["Pen", "Pencil"],
+  ["Book", "Notebook"],
+  ["Bag", "Suitcase"],
+  ["Phone", "Tablet"],
+  ["Laptop", "Desktop"],
+  ["TV", "Projector"],
+  ["Fan", "AC"],
+  ["Bulb", "Tube Light"],
+  ["Watch", "Clock"],
+  ["Camera", "Camcorder"],
+
+  // Emotions
+  ["Happy", "Excited"],
+  ["Sad", "Angry"],
+  ["Calm", "Relaxed"],
+  ["Fear", "Panic"],
+  ["Love", "Care"],
+  ["Trust", "Doubt"],
+  ["Hope", "Dream"],
+  ["Luck", "Chance"],
+  ["Skill", "Talent"],
+  ["Hate", "Jealousy"]
+];
+
+// 🔀 Shuffle once → no repeats
+pairs.sort(() => Math.random() - 0.5);
+
+let totalPlayers = 0;
+let spyIndex = 0;
+let normalWord = "";
+let spyWord = "";
+let currentPlayer = 0;
+
+function startGame() {
+  totalPlayers = Number(document.getElementById("players").value);
+  if (totalPlayers < 3 || totalPlayers > 10) {
+    alert("Enter 3 to 10 players");
+    return;
+  }
+
+  if (pairs.length === 0) {
+    alert("No more word pairs left!");
+    location.reload();
+  }
+
+  const pair = pairs.pop();
+  normalWord = pair[0];
+  spyWord = pair[1];
+  spyIndex = Math.floor(Math.random() * totalPlayers);
+  currentPlayer = 0;
+
+  nextPlayer();
+}
+
+function nextPlayer() {
+  if (currentPlayer >= totalPlayers) {
+    discussionScreen();
+    return;
+  }
+
+  document.getElementById("app").innerHTML = `
+    <h2>Player ${currentPlayer + 1}</h2>
+    <button onclick="showWord()">Show Word</button>
+  `;
+}
+
+function showWord() {
+  const word = currentPlayer === spyIndex ? spyWord : normalWord;
+  document.getElementById("app").innerHTML = `
+    <h2>Your Word</h2>
+    <div class="word">${word}</div>
+    <button onclick="hideWord()">Hide & Pass</button>
+  `;
+}
+
+function hideWord() {
+  currentPlayer++;
+  nextPlayer();
+}
+
+function discussionScreen() {
+  document.getElementById("app").innerHTML = `
+    <h2>🗣️ Discussion Time</h2>
+    <button onclick="revealSpy()">Reveal Spy</button>
+  `;
+}
+
+function revealSpy() {
+  document.getElementById("app").innerHTML = `
+    <h2>🕵️ Spy Revealed</h2>
+    <p><b>Spy:</b> Player ${spyIndex + 1}</p>
+    <p><b>Spy Word:</b> ${spyWord}</p>
+    <p><b>Common Word:</b> ${normalWord}</p>
+    <button onclick="location.reload()">New Game</button>
+  `;
+}
+</script>
+
+</body>
+</html>
