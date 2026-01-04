@@ -15,7 +15,11 @@
   --text-main: #fff;
 }
 
-* { box-sizing: border-box; margin: 0; padding: 0; }
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
 
 body {
   min-height: 100vh;
@@ -42,8 +46,15 @@ body {
 
 .hidden { display: none; }
 
-h1, h2 { text-align: center; margin-bottom: 12px; }
-p { text-align: center; opacity: 0.85; }
+h1, h2 {
+  text-align: center;
+  margin-bottom: 12px;
+}
+
+p {
+  text-align: center;
+  opacity: 0.85;
+}
 
 input, button {
   width: 100%;
@@ -817,40 +828,88 @@ const morePairs = [
   ["Pop", "Rock"]
 ];
 
+
+/* ================= GAME STATE ================= */
 let players = [];
 let current = 0;
 let spyIndex = 0;
 let normalWord = "";
 let spyWord = "";
 
-function goToSetup() {
-  document.getElementById("welcome").classList.add("hidden");
-  document.getElementById("setup").classList.remove("hidden");
+/* ================= HELPERS ================= */
+function getSavedPlayers() {
+  try {
+    const data = localStorage.getItem("spyGamePlayers");
+    const arr = JSON.parse(data);
+    return Array.isArray(arr) ? arr : [];
+  } catch {
+    return [];
+  }
 }
 
-document.getElementById("playerCount").addEventListener("input", e => {
-  const count = Number(e.target.value);
+function savePlayers(arr) {
+  localStorage.setItem("spyGamePlayers", JSON.stringify(arr));
+}
+
+function switchScreen(id) {
+  document.querySelectorAll(".game-container > div")
+    .forEach(d => d.classList.add("hidden"));
+  document.getElementById(id).classList.remove("hidden");
+}
+
+function generatePlayerInputs(count, saved = []) {
   const container = document.getElementById("playerInputs");
   container.innerHTML = "";
+
   for (let i = 0; i < count; i++) {
     const input = document.createElement("input");
-    input.placeholder = `Player ${i+1} Name`;
+    input.placeholder = `Player ${i + 1} Name`;
+    input.value = saved[i] || "";
     container.appendChild(input);
   }
-});
+}
 
-function confirmPlayers() {
-  const inputs = document.querySelectorAll("#playerInputs input");
-  players = [...inputs].map((i, idx) => i.value || `Player ${idx+1}`);
-  if (players.length < 3) return alert("Minimum 3 players");
-
-  const pair = pairs[Math.floor(Math.random() * pairs.length)];
+function setupRound() {
+  const pair = morePairs[Math.floor(Math.random() * morePairs.length)];
   normalWord = pair[0];
   spyWord = pair[1];
+
   spyIndex = Math.floor(Math.random() * players.length);
   current = 0;
 
   showHandover();
+}
+
+/* ================= FLOW ================= */
+function goToSetup() {
+  switchScreen("setup");
+
+  // auto-fill from saved
+  const saved = getSavedPlayers();
+  if (saved.length >= 3) {
+    const playerCountEl = document.getElementById("playerCount");
+    playerCountEl.value = saved.length;
+    generatePlayerInputs(saved.length, saved);
+  }
+}
+
+function confirmPlayers() {
+  const inputs = document.querySelectorAll("#playerInputs input");
+  if (!inputs.length) {
+    alert("Enter number of players first");
+    return;
+  }
+  if (inputs.length < 3) {
+    alert("Minimum 3 players required");
+    return;
+  }
+
+  players = [...inputs].map((i, idx) => (i.value || "").trim() || `Player ${idx + 1}`);
+
+  // ✅ SAVE names so you don't re-enter next time
+  savePlayers(players);
+
+  setupRound();
 }
 
 function showHandover() {
@@ -863,28 +922,63 @@ function showReveal() {
   switchScreen("reveal");
   const roleCard = document.getElementById("roleText");
   roleCard.innerText = "Tap to reveal";
+
   roleCard.onclick = () => {
-    roleCard.innerText = current === spyIndex ? spyWord : normalWord;
+    roleCard.innerText = (current === spyIndex) ? spyWord : normalWord;
   };
 }
 
 function hideRole() {
   current++;
-  current >= players.length ? switchScreen("discussion") : showHandover();
+  if (current >= players.length) switchScreen("discussion");
+  else showHandover();
 }
 
 function revealSpy() {
   switchScreen("result");
   document.getElementById("resultText").innerText =
     `${players[spyIndex]} was the SPY (${spyWord})`;
+
+  // Add Restart button automatically (same players, new spy/words)
+  const resultBox = document.getElementById("result");
+  if (!document.getElementById("restartBtn")) {
+    const btn = document.createElement("button");
+    btn.id = "restartBtn";
+    btn.textContent = "Restart (Same Players)";
+    btn.onclick = restartSamePlayers;
+    resultBox.appendChild(btn);
+  }
 }
 
-function switchScreen(id) {
-  document.querySelectorAll(".game-container > div")
-    .forEach(d => d.classList.add("hidden"));
-  document.getElementById(id).classList.remove("hidden");
+function restartSamePlayers() {
+  // Use saved players if available, otherwise current players
+  const saved = getSavedPlayers();
+  if (saved.length >= 3) players = saved;
+  if (!players || players.length < 3) {
+    alert("No saved players found. Please set up players.");
+    switchScreen("setup");
+    return;
+  }
+  setupRound();
 }
+
+/* ================= INIT ================= */
+document.addEventListener("DOMContentLoaded", () => {
+  const playerCountEl = document.getElementById("playerCount");
+
+  // safer: generate inputs on change
+  playerCountEl.addEventListener("input", (e) => {
+    const count = Number(e.target.value);
+    if (!Number.isFinite(count) || count < 0) return;
+    generatePlayerInputs(count);
+  });
+
+  // expose functions for your existing onclick buttons
+  window.goToSetup = goToSetup;
+  window.confirmPlayers = confirmPlayers;
+  window.showReveal = showReveal;
+  window.hideRole = hideRole;
+  window.revealSpy = revealSpy;
+  window.restartSamePlayers = restartSamePlayers;
+});
 </script>
-
-</body>
-</html>
