@@ -1,0 +1,1267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Music System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460);
+            color: white;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4);
+            background-size: 400% 400%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: gradientShift 3s ease infinite;
+        }
+
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-bottom: 30px;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .control-group label {
+            font-size: 0.9em;
+            opacity: 0.8;
+        }
+
+        .slider {
+            width: 100px;
+            height: 6px;
+            border-radius: 3px;
+            background: #333;
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #4ecdc4;
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(78, 205, 196, 0.5);
+        }
+
+        .slider::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #4ecdc4;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 0 10px rgba(78, 205, 196, 0.5);
+        }
+
+        .btn {
+            padding: 10px 20px;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            border: none;
+            border-radius: 25px;
+            color: white;
+            cursor: pointer;
+            font-size: 1em;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .file-label {
+            padding: 10px 20px;
+            background: #333;
+            border: 2px dashed #4ecdc4;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .file-label:hover {
+            background: #4ecdc4;
+            color: #1a1a2e;
+        }
+
+        .visualizer-container {
+            position: relative;
+            width: 100%;
+            height: 400px;
+            margin-bottom: 30px;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.1);
+        }
+
+        .waveform-container {
+            position: relative;
+            width: 100%;
+            height: 150px;
+            margin-bottom: 20px;
+            border-radius: 10px;
+            overflow: hidden;
+            background: rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+        }
+
+        .waveform-canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+
+        .progress-bar {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            background: linear-gradient(90deg, rgba(78, 205, 196, 0.3), rgba(255, 107, 107, 0.3));
+            pointer-events: none;
+            transition: width 0.1s ease;
+        }
+
+        .playlist {
+            max-height: 300px;
+            overflow-y: auto;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            padding: 10px;
+        }
+
+        .track {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            margin-bottom: 5px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .track:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .track.active {
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+        }
+
+        .track-info {
+            flex: 1;
+            margin-left: 10px;
+        }
+
+        .track-title {
+            font-weight: bold;
+        }
+
+        .track-duration {
+            font-size: 0.8em;
+            opacity: 0.7;
+        }
+
+        .loader {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 50px;
+            height: 50px;
+            border: 4px solid rgba(255, 255, 255, 0.1);
+            border-top: 4px solid #4ecdc4;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            display: none;
+        }
+
+        @keyframes spin {
+            0% { transform: translate(-50%, -50%) rotate(0deg); }
+            100% { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+
+        .shake {
+            animation: shake 0.5s ease-in-out;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+            20%, 40%, 60%, 80% { transform: translateX(5px); }
+        }
+
+        .beat-flash {
+            animation: beatFlash 0.1s ease-in-out;
+        }
+
+        @keyframes beatFlash {
+            0%, 100% { background: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460); }
+            50% { background: linear-gradient(135deg, #ff6b6b, #4ecdc4, #45b7d1); }
+        }
+
+        .mode-selector {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .mode-btn {
+            padding: 8px 16px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid #4ecdc4;
+            border-radius: 20px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .mode-btn.active {
+            background: #4ecdc4;
+            color: #1a1a2e;
+        }
+
+        .info {
+            text-align: center;
+            margin-top: 20px;
+            opacity: 0.7;
+            font-size: 0.9em;
+        }
+
+        @media (max-width: 768px) {
+            .controls {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .control-group {
+                width: 100%;
+                max-width: 300px;
+            }
+
+            .slider {
+                width: 100%;
+            }
+
+            .visualizer-container {
+                height: 300px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎵 Advanced Music System</h1>
+            <p>Web Audio API Powered Music Player</p>
+        </div>
+
+        <div class="controls">
+            <div class="control-group">
+                <label for="file-input">Upload Audio</label>
+                <input type="file" id="file-input" class="file-input" accept="audio/*" multiple>
+                <label for="file-input" class="file-label">Choose Files</label>
+            </div>
+
+            <div class="control-group">
+                <label for="mic-toggle">Microphone</label>
+                <button id="mic-toggle" class="btn">🎤 Enable Mic</button>
+            </div>
+
+            <div class="control-group">
+                <label for="play-pause">Playback</label>
+                <button id="play-pause" class="btn">▶️ Play</button>
+            </div>
+
+            <div class="control-group">
+                <label for="bass">Bass</label>
+                <input type="range" id="bass" class="slider" min="-20" max="20" value="0">
+            </div>
+
+            <div class="control-group">
+                <label for="mid">Mid</label>
+                <input type="range" id="mid" class="slider" min="-20" max="20" value="0">
+            </div>
+
+            <div class="control-group">
+                <label for="treble">Treble</label>
+                <input type="range" id="treble" class="slider" min="-20" max="20" value="0">
+            </div>
+
+            <div class="control-group">
+                <label for="gain">Gain</label>
+                <input type="range" id="gain" class="slider" min="0" max="2" step="0.1" value="1">
+            </div>
+
+            <div class="control-group">
+                <label for="pan">Pan</label>
+                <input type="range" id="pan" class="slider" min="-1" max="1" step="0.1" value="0">
+            </div>
+
+            <div class="control-group">
+                <label for="volume">Volume</label>
+                <input type="range" id="volume" class="slider" min="0" max="1" step="0.01" value="0.7">
+            </div>
+        </div>
+
+        <div class="mode-selector">
+            <button class="mode-btn active" data-mode="bars">Bars</button>
+            <button class="mode-btn" data-mode="waveform">Waveform</button>
+            <button class="mode-btn" data-mode="circular">Circular</button>
+            <button class="mode-btn" data-mode="neon">Neon</button>
+        </div>
+
+        <div class="visualizer-container">
+            <canvas id="visualizer"></canvas>
+        </div>
+
+        <div class="waveform-container">
+            <canvas id="waveform" class="waveform-canvas"></canvas>
+            <div class="progress-bar" id="progress-bar"></div>
+        </div>
+
+        <div class="playlist" id="playlist"></div>
+
+        <div class="info">
+            <p id="bpm-display">BPM: --</p>
+            <p id="status">Ready to play music</p>
+        </div>
+    </div>
+
+    <div class="loader" id="loader"></div>
+
+    <script>
+        // Audio Engine
+        class AudioEngine {
+            constructor() {
+                this.audioContext = null;
+                this.source = null;
+                this.analyser = null;
+                this.gainNode = null;
+                this.bassFilter = null;
+                this.midFilter = null;
+                this.trebleFilter = null;
+                this.panner = null;
+                this.isPlaying = false;
+                this.currentBuffer = null;
+                this.startTime = 0;
+                this.pauseTime = 0;
+                this.duration = 0;
+                this.micStream = null;
+                this.micSource = null;
+                this.isMicActive = false;
+                this.beatHistory = [];
+                this.lastBeatTime = 0;
+                this.bpm = 0;
+                this.energyHistory = [];
+                this.mood = 'neutral';
+            }
+
+            async init() {
+                try {
+                    this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                    await this.resumeContext();
+                    this.setupNodes();
+                    console.log('Audio engine initialized');
+                } catch (error) {
+                    console.error('Failed to initialize audio engine:', error);
+                }
+            }
+
+            async resumeContext() {
+                if (this.audioContext.state === 'suspended') {
+                    await this.audioContext.resume();
+                }
+            }
+
+            setupNodes() {
+                // Analyser for visualization
+                this.analyser = this.audioContext.createAnalyser();
+                this.analyser.fftSize = 2048;
+                this.analyser.smoothingTimeConstant = 0.8;
+
+                // Gain control
+                this.gainNode = this.audioContext.createGain();
+                this.gainNode.connect(this.audioContext.destination);
+
+                // EQ filters
+                this.bassFilter = this.audioContext.createBiquadFilter();
+                this.bassFilter.type = 'lowshelf';
+                this.bassFilter.frequency.value = 250;
+
+                this.midFilter = this.audioContext.createBiquadFilter();
+                this.midFilter.type = 'peaking';
+                this.midFilter.frequency.value = 1000;
+                this.midFilter.Q.value = 1;
+
+                this.trebleFilter = this.audioContext.createBiquadFilter();
+                this.trebleFilter.type = 'highshelf';
+                this.trebleFilter.frequency.value = 4000;
+
+                // Stereo panner
+                this.panner = this.audioContext.createStereoPanner();
+
+                // Connect chain: analyser -> bass -> mid -> treble -> panner -> gain -> destination
+                this.analyser.connect(this.bassFilter);
+                this.bassFilter.connect(this.midFilter);
+                this.midFilter.connect(this.trebleFilter);
+                this.trebleFilter.connect(this.panner);
+                this.panner.connect(this.gainNode);
+            }
+
+            async loadAudioFile(file) {
+                const arrayBuffer = await file.arrayBuffer();
+                this.currentBuffer = await this.audioContext.decodeAudioData(arrayBuffer);
+                this.duration = this.currentBuffer.duration;
+                return this.currentBuffer;
+            }
+
+            play() {
+                if (!this.currentBuffer) return;
+
+                this.stop();
+                this.source = this.audioContext.createBufferSource();
+                this.source.buffer = this.currentBuffer;
+                this.source.connect(this.analyser);
+
+                const offset = this.pauseTime;
+                this.source.start(0, offset);
+                this.startTime = this.audioContext.currentTime - offset;
+                this.isPlaying = true;
+
+                this.source.onended = () => {
+                    this.isPlaying = false;
+                    this.pauseTime = 0;
+                    this.startTime = 0;
+                };
+            }
+
+            pause() {
+                if (this.source) {
+                    this.source.stop();
+                    this.pauseTime = this.audioContext.currentTime - this.startTime;
+                    this.isPlaying = false;
+                }
+            }
+
+            stop() {
+                if (this.source) {
+                    this.source.stop();
+                    this.source = null;
+                    this.isPlaying = false;
+                    this.pauseTime = 0;
+                    this.startTime = 0;
+                }
+            }
+
+            seek(time) {
+                if (this.currentBuffer) {
+                    this.pauseTime = Math.max(0, Math.min(time, this.duration));
+                    if (this.isPlaying) {
+                        this.play();
+                    }
+                }
+            }
+
+            getCurrentTime() {
+                if (!this.isPlaying) return this.pauseTime;
+                return this.audioContext.currentTime - this.startTime;
+            }
+
+            setVolume(volume) {
+                if (this.gainNode) {
+                    this.gainNode.gain.value = volume;
+                }
+            }
+
+            setEQ(bass, mid, treble) {
+                if (this.bassFilter) this.bassFilter.gain.value = bass;
+                if (this.midFilter) this.midFilter.gain.value = mid;
+                if (this.trebleFilter) this.trebleFilter.gain.value = treble;
+            }
+
+            setPan(pan) {
+                if (this.panner) this.panner.pan.value = pan;
+            }
+
+            async enableMicrophone() {
+                try {
+                    this.micStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                    this.micSource = this.audioContext.createMediaStreamSource(this.micStream);
+                    this.micSource.connect(this.analyser);
+                    this.isMicActive = true;
+                    console.log('Microphone enabled');
+                } catch (error) {
+                    console.error('Failed to enable microphone:', error);
+                }
+            }
+
+            disableMicrophone() {
+                if (this.micStream) {
+                    this.micStream.getTracks().forEach(track => track.stop());
+                    this.micStream = null;
+                    this.micSource = null;
+                    this.isMicActive = false;
+                    console.log('Microphone disabled');
+                }
+            }
+
+            getFrequencyData() {
+                if (!this.analyser) return new Uint8Array(0);
+                const bufferLength = this.analyser.frequencyBinCount;
+                const dataArray = new Uint8Array(bufferLength);
+                this.analyser.getByteFrequencyData(dataArray);
+                return dataArray;
+            }
+
+            getWaveformData() {
+                if (!this.analyser) return new Uint8Array(0);
+                const bufferLength = this.analyser.fftSize;
+                const dataArray = new Uint8Array(bufferLength);
+                this.analyser.getByteTimeDomainData(dataArray);
+                return dataArray;
+            }
+
+            detectBeat() {
+                const data = this.getFrequencyData();
+                const bassRange = data.slice(0, Math.floor(data.length * 0.1)); // First 10% for bass
+                const bassAverage = bassRange.reduce((a, b) => a + b) / bassRange.length;
+
+                this.beatHistory.push(bassAverage);
+                if (this.beatHistory.length > 10) {
+                    this.beatHistory.shift();
+                }
+
+                const average = this.beatHistory.reduce((a, b) => a + b) / this.beatHistory.length;
+                const threshold = average * 1.5;
+
+                const currentTime = Date.now();
+                if (bassAverage > threshold && currentTime - this.lastBeatTime > 200) {
+                    this.lastBeatTime = currentTime;
+                    this.updateBPM();
+                    return true;
+                }
+                return false;
+            }
+
+            updateBPM() {
+                const intervals = [];
+                let lastBeat = this.lastBeatTime;
+
+                // Calculate intervals between recent beats
+                for (let i = this.beatHistory.length - 1; i >= 0; i--) {
+                    if (this.beatHistory[i] > 0) {
+                        intervals.push(lastBeat - this.lastBeatTime);
+                        lastBeat = this.lastBeatTime;
+                    }
+                }
+
+                if (intervals.length > 2) {
+                    const avgInterval = intervals.reduce((a, b) => a + b) / intervals.length;
+                    this.bpm = Math.round(60000 / avgInterval);
+                    this.bpm = Math.max(60, Math.min(200, this.bpm)); // Clamp BPM
+                }
+            }
+
+            getMood() {
+                const data = this.getFrequencyData();
+                const energy = data.reduce((a, b) => a + b) / data.length;
+
+                this.energyHistory.push(energy);
+                if (this.energyHistory.length > 20) {
+                    this.energyHistory.shift();
+                }
+
+                const avgEnergy = this.energyHistory.reduce((a, b) => a + b) / this.energyHistory.length;
+
+                if (avgEnergy < 20) return 'calm';
+                if (avgEnergy > 100) return 'energetic';
+                return 'neutral';
+            }
+        }
+
+        // Visualizer
+        class Visualizer {
+            constructor(canvas, audioEngine) {
+                this.canvas = canvas;
+                this.ctx = canvas.getContext('2d');
+                this.audioEngine = audioEngine;
+                this.mode = 'bars';
+                this.animationId = null;
+                this.resize();
+                window.addEventListener('resize', () => this.resize());
+            }
+
+            resize() {
+                const rect = this.canvas.getBoundingClientRect();
+                const dpr = window.devicePixelRatio || 1;
+                this.canvas.width = rect.width * dpr;
+                this.canvas.height = rect.height * dpr;
+                this.ctx.scale(dpr, dpr);
+                this.canvas.style.width = rect.width + 'px';
+                this.canvas.style.height = rect.height + 'px';
+            }
+
+            start() {
+                this.animate();
+            }
+
+            stop() {
+                if (this.animationId) {
+                    cancelAnimationFrame(this.animationId);
+                    this.animationId = null;
+                }
+            }
+
+            animate() {
+                this.animationId = requestAnimationFrame(() => this.animate());
+                this.draw();
+            }
+
+            draw() {
+                const width = this.canvas.width / (window.devicePixelRatio || 1);
+                const height = this.canvas.height / (window.devicePixelRatio || 1);
+
+                this.ctx.clearRect(0, 0, width, height);
+
+                if (!this.audioEngine.isPlaying && !this.audioEngine.isMicActive) {
+                    this.drawIdle();
+                    return;
+                }
+
+                switch (this.mode) {
+                    case 'bars':
+                        this.drawBars(width, height);
+                        break;
+                    case 'waveform':
+                        this.drawWaveform(width, height);
+                        break;
+                    case 'circular':
+                        this.drawCircular(width, height);
+                        break;
+                    case 'neon':
+                        this.drawNeon(width, height);
+                        break;
+                }
+            }
+
+            drawIdle() {
+                const width = this.canvas.width / (window.devicePixelRatio || 1);
+                const height = this.canvas.height / (window.devicePixelRatio || 1);
+
+                this.ctx.fillStyle = 'rgba(78, 205, 196, 0.3)';
+                this.ctx.font = '24px Arial';
+                this.ctx.textAlign = 'center';
+                this.ctx.fillText('🎵 Play some music!', width / 2, height / 2);
+            }
+
+            drawBars(width, height) {
+                const data = this.audioEngine.getFrequencyData();
+                const barCount = Math.min(128, data.length);
+                const barWidth = width / barCount;
+
+                for (let i = 0; i < barCount; i++) {
+                    const value = data[i];
+                    const percent = value / 255;
+                    const barHeight = percent * height;
+
+                    const hue = (i / barCount) * 360;
+                    this.ctx.fillStyle = `hsl(${hue}, 70%, 50%)`;
+
+                    this.ctx.fillRect(i * barWidth, height - barHeight, barWidth - 1, barHeight);
+                }
+            }
+
+            drawWaveform(width, height) {
+                const data = this.audioEngine.getWaveformData();
+                const sliceWidth = width / data.length;
+                let x = 0;
+
+                this.ctx.lineWidth = 2;
+                this.ctx.strokeStyle = '#4ecdc4';
+                this.ctx.beginPath();
+
+                for (let i = 0; i < data.length; i++) {
+                    const v = data[i] / 128.0;
+                    const y = v * height / 2;
+
+                    if (i === 0) {
+                        this.ctx.moveTo(x, y);
+                    } else {
+                        this.ctx.lineTo(x, y);
+                    }
+
+                    x += sliceWidth;
+                }
+
+                this.ctx.stroke();
+            }
+
+            drawCircular(width, height) {
+                const data = this.audioEngine.getFrequencyData();
+                const centerX = width / 2;
+                const centerY = height / 2;
+                const radius = Math.min(width, height) / 4;
+
+                this.ctx.strokeStyle = '#4ecdc4';
+                this.ctx.lineWidth = 2;
+
+                for (let i = 0; i < data.length; i += 4) {
+                    const value = data[i];
+                    const percent = value / 255;
+                    const angle = (i / data.length) * Math.PI * 2;
+                    const barHeight = percent * radius;
+
+                    const x1 = centerX + Math.cos(angle) * radius;
+                    const y1 = centerY + Math.sin(angle) * radius;
+                    const x2 = centerX + Math.cos(angle) * (radius + barHeight);
+                    const y2 = centerY + Math.sin(angle) * (radius + barHeight);
+
+                    this.ctx.beginPath();
+                    this.ctx.moveTo(x1, y1);
+                    this.ctx.lineTo(x2, y2);
+                    this.ctx.stroke();
+                }
+            }
+
+            drawNeon(width, height) {
+                const data = this.audioEngine.getFrequencyData();
+                const barCount = Math.min(64, data.length);
+                const barWidth = width / barCount;
+
+                this.ctx.shadowBlur = 10;
+                this.ctx.shadowColor = '#4ecdc4';
+
+                for (let i = 0; i < barCount; i++) {
+                    const value = data[i];
+                    const percent = value / 255;
+                    const barHeight = percent * height;
+
+                    this.ctx.fillStyle = '#4ecdc4';
+                    this.ctx.fillRect(i * barWidth, height - barHeight, barWidth - 2, barHeight);
+
+                    // Add glow effect
+                    this.ctx.shadowBlur = 20;
+                    this.ctx.fillRect(i * barWidth, height - barHeight, barWidth - 2, 2);
+                    this.ctx.shadowBlur = 10;
+                }
+            }
+
+            setMode(mode) {
+                this.mode = mode;
+            }
+        }
+
+        // Waveform Player
+        class WaveformPlayer {
+            constructor(canvas, progressBar, audioEngine) {
+                this.canvas = canvas;
+                this.progressBar = progressBar;
+                this.audioEngine = audioEngine;
+                this.ctx = canvas.getContext('2d');
+                this.waveformData = null;
+                this.resize();
+                window.addEventListener('resize', () => this.resize());
+
+                this.canvas.addEventListener('click', (e) => this.seek(e));
+            }
+
+            resize() {
+                const rect = this.canvas.getBoundingClientRect();
+                const dpr = window.devicePixelRatio || 1;
+                this.canvas.width = rect.width * dpr;
+                this.canvas.height = rect.height * dpr;
+                this.ctx.scale(dpr, dpr);
+                this.canvas.style.width = rect.width + 'px';
+                this.canvas.style.height = rect.height + 'px';
+                this.draw();
+            }
+
+            setWaveformData(buffer) {
+                // Generate waveform data from audio buffer
+                const channelData = buffer.getChannelData(0);
+                const samples = 1000; // Number of samples for waveform
+                this.waveformData = [];
+
+                for (let i = 0; i < samples; i++) {
+                    const start = Math.floor((i / samples) * channelData.length);
+                    const end = Math.floor(((i + 1) / samples) * channelData.length);
+                    let max = 0;
+
+                    for (let j = start; j < end; j++) {
+                        max = Math.max(max, Math.abs(channelData[j]));
+                    }
+
+                    this.waveformData.push(max);
+                }
+
+                this.draw();
+            }
+
+            draw() {
+                if (!this.waveformData) return;
+
+                const width = this.canvas.width / (window.devicePixelRatio || 1);
+                const height = this.canvas.height / (window.devicePixelRatio || 1);
+
+                this.ctx.clearRect(0, 0, width, height);
+
+                const barWidth = width / this.waveformData.length;
+                const centerY = height / 2;
+
+                // Draw unplayed portion
+                this.ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+                for (let i = 0; i < this.waveformData.length; i++) {
+                    const value = this.waveformData[i];
+                    const barHeight = value * height;
+                    this.ctx.fillRect(i * barWidth, centerY - barHeight / 2, barWidth - 1, barHeight);
+                }
+
+                // Draw played portion
+                const progress = this.audioEngine.getCurrentTime() / this.audioEngine.duration;
+                const playedWidth = progress * width;
+
+                this.ctx.fillStyle = '#4ecdc4';
+                for (let i = 0; i < this.waveformData.length; i++) {
+                    const x = i * barWidth;
+                    if (x > playedWidth) break;
+
+                    const value = this.waveformData[i];
+                    const barHeight = value * height;
+                    this.ctx.fillRect(x, centerY - barHeight / 2, barWidth - 1, barHeight);
+                }
+            }
+
+            seek(e) {
+                const rect = this.canvas.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const progress = x / rect.width;
+                const time = progress * this.audioEngine.duration;
+                this.audioEngine.seek(time);
+                this.draw();
+            }
+
+            updateProgress() {
+                const progress = this.audioEngine.getCurrentTime() / this.audioEngine.duration;
+                this.progressBar.style.width = (progress * 100) + '%';
+                this.draw();
+            }
+        }
+
+        // Playlist Manager
+        class PlaylistManager {
+            constructor(playlistElement, audioEngine) {
+                this.playlistElement = playlistElement;
+                this.audioEngine = audioEngine;
+                this.tracks = [];
+                this.currentIndex = -1;
+                this.isShuffle = false;
+                this.isRepeat = false;
+                this.loadFromStorage();
+            }
+
+            addTrack(file) {
+                const track = {
+                    file: file,
+                    name: file.name,
+                    duration: 0,
+                    url: URL.createObjectURL(file)
+                };
+                this.tracks.push(track);
+                this.saveToStorage();
+                this.render();
+            }
+
+            async loadTrack(index) {
+                if (index < 0 || index >= this.tracks.length) return;
+
+                this.currentIndex = index;
+                const track = this.tracks[index];
+
+                try {
+                    const buffer = await this.audioEngine.loadAudioFile(track.file);
+                    track.duration = this.audioEngine.duration;
+                    this.saveToStorage();
+                    this.render();
+
+                    // Load waveform
+                    if (window.waveformPlayer) {
+                        window.waveformPlayer.setWaveformData(buffer);
+                    }
+                } catch (error) {
+                    console.error('Failed to load track:', error);
+                }
+            }
+
+            playNext() {
+                if (this.isShuffle) {
+                    this.currentIndex = Math.floor(Math.random() * this.tracks.length);
+                } else {
+                    this.currentIndex = (this.currentIndex + 1) % this.tracks.length;
+                }
+                this.loadTrack(this.currentIndex);
+            }
+
+            playPrevious() {
+                this.currentIndex = Math.max(0, this.currentIndex - 1);
+                this.loadTrack(this.currentIndex);
+            }
+
+            toggleShuffle() {
+                this.isShuffle = !this.isShuffle;
+            }
+
+            toggleRepeat() {
+                this.isRepeat = !this.isRepeat;
+            }
+
+            render() {
+                this.playlistElement.innerHTML = '';
+
+                this.tracks.forEach((track, index) => {
+                    const trackElement = document.createElement('div');
+                    trackElement.className = `track ${index === this.currentIndex ? 'active' : ''}`;
+
+                    trackElement.innerHTML = `
+                        <div class="track-info">
+                            <div class="track-title">${track.name}</div>
+                            <div class="track-duration">${this.formatDuration(track.duration)}</div>
+                        </div>
+                    `;
+
+                    trackElement.addEventListener('click', () => this.loadTrack(index));
+                    this.playlistElement.appendChild(trackElement);
+                });
+            }
+
+            formatDuration(seconds) {
+                if (!seconds) return '--:--';
+                const mins = Math.floor(seconds / 60);
+                const secs = Math.floor(seconds % 60);
+                return `${mins}:${secs.toString().padStart(2, '0')}`;
+            }
+
+            saveToStorage() {
+                const data = {
+                    tracks: this.tracks.map(track => ({
+                        name: track.name,
+                        duration: track.duration
+                    })),
+                    currentIndex: this.currentIndex,
+                    isShuffle: this.isShuffle,
+                    isRepeat: this.isRepeat
+                };
+                localStorage.setItem('musicPlayer', JSON.stringify(data));
+            }
+
+            loadFromStorage() {
+                const data = localStorage.getItem('musicPlayer');
+                if (data) {
+                    const parsed = JSON.parse(data);
+                    this.isShuffle = parsed.isShuffle || false;
+                    this.isRepeat = parsed.isRepeat || false;
+                    // Note: We can't restore actual files from localStorage
+                }
+            }
+        }
+
+        // Main Application
+        class MusicApp {
+            constructor() {
+                this.audioEngine = new AudioEngine();
+                this.visualizer = null;
+                this.waveformPlayer = null;
+                this.playlistManager = null;
+                this.isInitialized = false;
+                this.lastBeatTime = 0;
+                this.shakeIntensity = 0;
+                this.init();
+            }
+
+            async init() {
+                await this.audioEngine.init();
+                this.setupUI();
+                this.setupEventListeners();
+                this.startRenderLoop();
+                this.isInitialized = true;
+                console.log('Music app initialized');
+            }
+
+            setupUI() {
+                const canvas = document.getElementById('visualizer');
+                this.visualizer = new Visualizer(canvas, this.audioEngine);
+
+                const waveformCanvas = document.getElementById('waveform');
+                const progressBar = document.getElementById('progress-bar');
+                this.waveformPlayer = new WaveformPlayer(waveformCanvas, progressBar, this.audioEngine);
+
+                const playlistElement = document.getElementById('playlist');
+                this.playlistManager = new PlaylistManager(playlistElement, this.audioEngine);
+            }
+
+            setupEventListeners() {
+                // File input
+                const fileInput = document.getElementById('file-input');
+                fileInput.addEventListener('change', (e) => this.handleFileSelect(e));
+
+                // Controls
+                const playPauseBtn = document.getElementById('play-pause');
+                playPauseBtn.addEventListener('click', () => this.togglePlayPause());
+
+                const micToggleBtn = document.getElementById('mic-toggle');
+                micToggleBtn.addEventListener('click', () => this.toggleMicrophone());
+
+                // EQ controls
+                const bassSlider = document.getElementById('bass');
+                const midSlider = document.getElementById('mid');
+                const trebleSlider = document.getElementById('treble');
+                const gainSlider = document.getElementById('gain');
+                const panSlider = document.getElementById('pan');
+                const volumeSlider = document.getElementById('volume');
+
+                bassSlider.addEventListener('input', () => this.updateEQ());
+                midSlider.addEventListener('input', () => this.updateEQ());
+                trebleSlider.addEventListener('input', () => this.updateEQ());
+                gainSlider.addEventListener('input', () => this.updateEQ());
+                panSlider.addEventListener('input', () => this.updateEQ());
+                volumeSlider.addEventListener('input', (e) => this.audioEngine.setVolume(parseFloat(e.target.value)));
+
+                // Mode selector
+                const modeBtns = document.querySelectorAll('.mode-btn');
+                modeBtns.forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        modeBtns.forEach(b => b.classList.remove('active'));
+                        btn.classList.add('active');
+                        this.visualizer.setMode(btn.dataset.mode);
+                    });
+                });
+
+                // Keyboard shortcuts
+                document.addEventListener('keydown', (e) => this.handleKeyPress(e));
+            }
+
+            async handleFileSelect(e) {
+                const files = Array.from(e.target.files);
+                for (const file of files) {
+                    this.playlistManager.addTrack(file);
+                }
+                if (files.length > 0 && this.playlistManager.currentIndex === -1) {
+                    await this.playlistManager.loadTrack(0);
+                }
+            }
+
+            togglePlayPause() {
+                if (this.audioEngine.isPlaying) {
+                    this.audioEngine.pause();
+                    document.getElementById('play-pause').textContent = '▶️ Play';
+                } else {
+                    this.audioEngine.resumeContext();
+                    this.audioEngine.play();
+                    document.getElementById('play-pause').textContent = '⏸️ Pause';
+                }
+            }
+
+            async toggleMicrophone() {
+                const btn = document.getElementById('mic-toggle');
+                if (this.audioEngine.isMicActive) {
+                    this.audioEngine.disableMicrophone();
+                    btn.textContent = '🎤 Enable Mic';
+                } else {
+                    await this.audioEngine.enableMicrophone();
+                    btn.textContent = '🎤 Disable Mic';
+                }
+            }
+
+            updateEQ() {
+                const bass = parseFloat(document.getElementById('bass').value);
+                const mid = parseFloat(document.getElementById('mid').value);
+                const treble = parseFloat(document.getElementById('treble').value);
+                this.audioEngine.setEQ(bass, mid, treble);
+            }
+
+            handleKeyPress(e) {
+                switch (e.code) {
+                    case 'Space':
+                        e.preventDefault();
+                        this.togglePlayPause();
+                        break;
+                    case 'ArrowRight':
+                        if (e.shiftKey) {
+                            const newTime = this.audioEngine.getCurrentTime() + 10;
+                            this.audioEngine.seek(newTime);
+                        }
+                        break;
+                    case 'ArrowLeft':
+                        if (e.shiftKey) {
+                            const newTime = this.audioEngine.getCurrentTime() - 10;
+                            this.audioEngine.seek(newTime);
+                        }
+                        break;
+                    case 'ArrowUp':
+                        const volumeUp = Math.min(1, parseFloat(document.getElementById('volume').value) + 0.1);
+                        document.getElementById('volume').value = volumeUp;
+                        this.audioEngine.setVolume(volumeUp);
+                        break;
+                    case 'ArrowDown':
+                        const volumeDown = Math.max(0, parseFloat(document.getElementById('volume').value) - 0.1);
+                        document.getElementById('volume').value = volumeDown;
+                        this.audioEngine.setVolume(volumeDown);
+                        break;
+                }
+            }
+
+            startRenderLoop() {
+                const render = () => {
+                    if (this.audioEngine.isPlaying || this.audioEngine.isMicActive) {
+                        this.visualizer.start();
+
+                        // Update waveform progress
+                        if (this.waveformPlayer) {
+                            this.waveformPlayer.updateProgress();
+                        }
+
+                        // Beat detection and effects
+                        if (this.audioEngine.detectBeat()) {
+                            this.triggerBeatEffects();
+                        }
+
+                        // Update BPM display
+                        if (this.audioEngine.bpm > 0) {
+                            document.getElementById('bpm-display').textContent = `BPM: ${this.audioEngine.bpm}`;
+                        }
+
+                        // Update mood-based effects
+                        this.updateMoodEffects();
+
+                        // Bass shake effect
+                        this.updateShakeEffect();
+
+                    } else {
+                        this.visualizer.stop();
+                    }
+
+                    requestAnimationFrame(render);
+                };
+                render();
+            }
+
+            triggerBeatEffects() {
+                // Screen flash
+                document.body.classList.add('beat-flash');
+                setTimeout(() => document.body.classList.remove('beat-flash'), 100);
+
+                // Bass shake
+                this.shakeIntensity = Math.min(1, this.shakeIntensity + 0.3);
+            }
+
+            updateShakeEffect() {
+                if (this.shakeIntensity > 0) {
+                    if (this.shakeIntensity > 0.1) {
+                        document.body.classList.add('shake');
+                    } else {
+                        document.body.classList.remove('shake');
+                    }
+                    this.shakeIntensity *= 0.95; // Decay
+                }
+            }
+
+            updateMoodEffects() {
+                const mood = this.audioEngine.getMood();
+                if (mood !== this.audioEngine.mood) {
+                    this.audioEngine.mood = mood;
+                    this.applyMoodStyling(mood);
+                }
+            }
+
+            applyMoodStyling(mood) {
+                const body = document.body;
+                body.className = body.className.replace(/mood-\w+/g, '');
+
+                switch (mood) {
+                    case 'calm':
+                        body.classList.add('mood-calm');
+                        break;
+                    case 'energetic':
+                        body.classList.add('mood-energetic');
+                        break;
+                    default:
+                        body.classList.add('mood-neutral');
+                        break;
+                }
+            }
+        }
+
+        // Initialize the app when the page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            window.musicApp = new MusicApp();
+        });
+
+        // Handle user interaction to resume audio context
+        document.addEventListener('click', async () => {
+            if (window.musicApp && window.musicApp.audioEngine) {
+                await window.musicApp.audioEngine.resumeContext();
+            }
+        });
+    </script>
+</body>
+</html>
